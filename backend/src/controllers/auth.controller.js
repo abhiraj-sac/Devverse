@@ -1,10 +1,18 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../modules/auth/user/user.model");
+const { sendOTPEmail } = require("../services/mail.service");
 const {
     buildAuthResponse,
     createAccessToken,
 } = require("../services/auth.service");
+
+const {
+    generateOTP,
+    saveOTP,
+    getOTP,
+    deleteOTP,
+} = require("../services/otp.services");
 
 exports.signup = async (req, res) => {
     try {
@@ -76,10 +84,16 @@ exports.login = async (req, res) => {
             });
         }
 
+        const otp = generateOTP();
+
+        await saveOTP(email.toLowerCase(), otp);
+
+        // Send OTP to Email
+        await sendOTPEmail(email.toLowerCase(), otp);
+
         return res.status(200).json({
             success: true,
-            message: "Login successful",
-            data: buildAuthResponse(user),
+            message: "OTP sent successfully. Please check your email.",
         });
     } catch (err) {
         return res.status(500).json({
@@ -216,6 +230,103 @@ exports.updateProfile = async (req, res) => {
             message: "Profile updated successfully",
             data: buildAuthResponse(user),
         });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};
+
+
+// send otp
+exports.sendOTP = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "Email is required",
+            });
+        }
+
+        const user = await User.findOne({
+            email: email.toLowerCase(),
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        const otp = generateOTP();
+
+        await saveOTP(email.toLowerCase(), otp);
+
+        return res.status(200).json({
+            success: true,
+            message: "OTP sent successfully",
+            otp, // testing only
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};
+
+exports.verifyOTP = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(400).json({
+                success: false,
+                message: "Email and OTP are required",
+            });
+        }
+
+        const user = await User.findOne({
+            email: email.toLowerCase(),
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        const savedOTP = await getOTP(email.toLowerCase());
+
+        if (!savedOTP) {
+            return res.status(400).json({
+                success: false,
+                message: "OTP expired or not found",
+            });
+        }
+
+        if (savedOTP !== otp) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid OTP",
+            });
+        }
+
+        await deleteOTP(email.toLowerCase());
+
+        return res.status(200).json({
+            success: true,
+            message: "OTP Verified Successfully",
+
+            data: buildAuthResponse(user),
+        });
+
     } catch (err) {
         return res.status(500).json({
             success: false,

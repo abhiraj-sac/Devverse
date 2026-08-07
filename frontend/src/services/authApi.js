@@ -23,7 +23,17 @@ export const registerUser = async (payload) => {
 
   return parseResponse(response);
 };
+  export const verifyOTP = async (data) => {
+      const response = await fetch(`${API_BASE}/auth/verify-otp`, {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+      });
 
+      return parseResponse(response);
+  };
 export const loginUser = async (payload) => {
   const response = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
