@@ -1,3 +1,4 @@
+const emailQueue = require("../queues/email.queue");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../modules/auth/user/user.model");
@@ -89,7 +90,23 @@ exports.login = async (req, res) => {
         await saveOTP(email.toLowerCase(), otp);
 
         // Send OTP to Email
-        await sendOTPEmail(email.toLowerCase(), otp);
+        // await sendOTPEmail(email.toLowerCase(), otp);
+
+        // bull mq
+        await emailQueue.add(
+    "send-otp",
+    {
+        email: email.toLowerCase(),
+        otp,
+    },
+    {
+        attempts: 3,
+        backoff: {
+            type: "exponential",
+            delay: 1000,
+        },
+    }
+);
 
         return res.status(200).json({
             success: true,
