@@ -1,31 +1,44 @@
-
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuthSession } from "../services/authApi";
 
 const DiscussionPage = () => {
-        console.log("🔥 DISCUSSION PAGE LOADED");
+    const navigate = useNavigate();
+
     const [discussions, setDiscussions] = useState([]);
     const [title, setTitle] = useState("");
     const [loading, setLoading] = useState(true);
     const [creating, setCreating] = useState(false);
     const [error, setError] = useState("");
-    
-    const navigate = useNavigate();
+
     const authSession = getAuthSession();
     const token = authSession?.accessToken;
-    console.log("AUTH SESSION:", authSession);
-console.log("TOKEN:", token);
 
+    console.log("🔥 DISCUSSION PAGE LOADED");
+    console.log("AUTH SESSION:", authSession);
+    console.log("TOKEN:", token);
+
+    const API_BASE =
+        (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "");
+
+    console.log("API BASE:", API_BASE);
+
+    // =========================
+    // FETCH DISCUSSIONS
+    // =========================
     const fetchDiscussions = async () => {
         try {
             setLoading(true);
             setError("");
 
+            if (!token) {
+                throw new Error("Please login again");
+            }
+
             const response = await fetch(
-                "/api/v1/discussions",
+                `${API_BASE}/discussions`,
                 {
+                    method: "GET",
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -34,13 +47,15 @@ console.log("TOKEN:", token);
 
             const data = await response.json();
 
+            console.log("DISCUSSIONS RESPONSE:", data);
+
             if (!response.ok) {
                 throw new Error(
-                    data.message || "Failed to fetch discussions"
+                    data?.message || "Failed to fetch discussions"
                 );
             }
 
-            setDiscussions(data.discussions || []);
+            setDiscussions(data?.discussions || []);
         } catch (error) {
             console.error("Fetch Discussions Error:", error);
             setError(error.message);
@@ -49,10 +64,16 @@ console.log("TOKEN:", token);
         }
     };
 
+    // =========================
+    // LOAD DISCUSSIONS
+    // =========================
     useEffect(() => {
         fetchDiscussions();
     }, []);
 
+    // =========================
+    // CREATE DISCUSSION
+    // =========================
     const handleCreateDiscussion = async (e) => {
         e.preventDefault();
 
@@ -64,8 +85,12 @@ console.log("TOKEN:", token);
             setCreating(true);
             setError("");
 
+            if (!token) {
+                throw new Error("Please login again");
+            }
+
             const response = await fetch(
-                "/api/v1/discussions",
+                `${API_BASE}/discussions`,
                 {
                     method: "POST",
                     headers: {
@@ -80,14 +105,17 @@ console.log("TOKEN:", token);
 
             const data = await response.json();
 
+            console.log("CREATE DISCUSSION RESPONSE:", data);
+
             if (!response.ok) {
                 throw new Error(
-                    data.message || "Failed to create discussion"
+                    data?.message || "Failed to create discussion"
                 );
             }
 
             setTitle("");
 
+            // Refresh discussion list
             await fetchDiscussions();
         } catch (error) {
             console.error("Create Discussion Error:", error);
@@ -162,27 +190,29 @@ console.log("TOKEN:", token);
                     </p>
                 ) : (
                     <div className="space-y-3">
-    {discussions.map((discussion) => (
-        <div
-            key={discussion._id}
-            onClick={() =>
-                navigate(`/community/${discussion._id}`)
-            }
-            className="p-5 rounded-xl border border-[var(--border)] hover:border-[var(--accent)] transition-colors cursor-pointer"
-        >
-            <h3 className="text-lg font-semibold">
-                {discussion.title}
-            </h3>
+                        {discussions.map((discussion) => (
+                            <div
+                                key={discussion._id}
+                                onClick={() =>
+                                    navigate(
+                                        `/community/${discussion._id}`
+                                    )
+                                }
+                                className="p-5 rounded-xl border border-[var(--border)] hover:border-[var(--accent)] transition-colors cursor-pointer"
+                            >
+                                <h3 className="text-lg font-semibold">
+                                    {discussion.title}
+                                </h3>
 
-            <p className="text-sm text-[var(--text-soft)] mt-2">
-                Started by{" "}
-                {discussion.createdBy?.fullName ||
-                    discussion.createdBy?.username ||
-                    "User"}
-            </p>
-        </div>
-    ))}
-</div>
+                                <p className="text-sm text-[var(--text-soft)] mt-2">
+                                    Started by{" "}
+                                    {discussion.createdBy?.fullName ||
+                                        discussion.createdBy?.username ||
+                                        "User"}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
                 )}
             </div>
         </div>
