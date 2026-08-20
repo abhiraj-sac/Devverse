@@ -17,9 +17,11 @@ app.use(express.json());
 
 const authRoutes = require("./routes/auth.routes");
 const postRoutes = require("./routes/post.routes");
+const discussionRoutes =require("./routes/discussion.routes")
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1", postRoutes);
+app.use("/api/v1/discussions",discussionRoutes);
 
 app.get("/",(req,res) =>{
     res.send(`<h1>backend of devhub</h1>`)

@@ -8,6 +8,11 @@ import StatusPage from "./pages/StatusPage.jsx";
 import FeedPage from "./pages/FeedPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import { clearAuthSession, getAuthSession } from "./services/authApi";
+// import CommunityPage from "./pages/CommunityPage";
+
+// import DiscussionPage from "./pages/DiscussionPage";
+import DiscussionPage from "./pages/DiscussionPage.jsx";
+import DiscussionRoomPage from "./pages/DiscussionRoomPage.jsx";
 
 export default function App() {
   const location = useLocation();
@@ -15,7 +20,7 @@ export default function App() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [authSession, setAuthSession] = useState(() => getAuthSession());
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  
+
   const isAuthPage = location.pathname === "/register" || location.pathname === "/login";
   const search = searchParams.get("search") || "";
 
@@ -56,13 +61,13 @@ export default function App() {
             <div className="max-w-[1128px] mx-auto px-4 h-14 flex items-center justify-between">
               {/* Logo & Search */}
               <div className="flex items-center gap-3 flex-grow md:flex-grow-0">
-                <div 
+                <div
                   onClick={() => navigate("/")}
                   className="feed-dark-pill font-bold text-xl rounded-xl w-9 h-9 flex items-center justify-center cursor-pointer select-none"
                 >
                   D
                 </div>
-                
+
                 {/* Search Input Container */}
                 <div className="relative flex-grow md:flex-grow-0 max-w-xs">
                   <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-dim)] text-[20px]">
@@ -80,8 +85,8 @@ export default function App() {
 
               {/* Navigation Items (Desktop & Tablet) */}
               <div className="hidden md:flex items-center gap-6">
-                <NavLink 
-                  to="/" 
+                <NavLink
+                  to="/"
                   className={({ isActive }) =>
                     isActive
                       ? "flex flex-col items-center text-[var(--accent)] border-b-2 border-[var(--accent)] px-1 py-1 font-semibold transition-colors"
@@ -91,8 +96,8 @@ export default function App() {
                   <span className="material-symbols-outlined text-[24px]">home</span>
                   <span className="text-[12px] font-normal font-sans block mt-0.5">Home</span>
                 </NavLink>
-                <NavLink 
-                  to="/stack" 
+                <NavLink
+                  to="/stack"
                   className={({ isActive }) =>
                     isActive
                       ? "flex flex-col items-center text-[var(--accent)] border-b-2 border-[var(--accent)] px-1 py-1 font-semibold transition-colors"
@@ -102,8 +107,8 @@ export default function App() {
                   <span className="material-symbols-outlined text-[24px]">explore</span>
                   <span className="text-[12px] font-normal font-sans block mt-0.5">Explore</span>
                 </NavLink>
-                <NavLink 
-                  to="/stack" 
+                <NavLink
+                  to="/stack"
                   className={({ isActive }) =>
                     isActive
                       ? "flex flex-col items-center text-[var(--accent)] border-b-2 border-[var(--accent)] px-1 py-1 font-semibold transition-colors"
@@ -113,25 +118,30 @@ export default function App() {
                   <span className="material-symbols-outlined text-[24px]">terminal</span>
                   <span className="text-[12px] font-normal font-sans block mt-0.5">Projects</span>
                 </NavLink>
-                <NavLink 
-                  to="/search" 
+                <NavLink
+                  to="/community"
                   className={({ isActive }) =>
                     isActive
                       ? "flex flex-col items-center text-[var(--accent)] border-b-2 border-[var(--accent)] px-1 py-1 font-semibold transition-colors"
                       : "flex flex-col items-center text-[var(--text-soft)] hover:text-[var(--text-main)] px-1 py-1 transition-colors"
                   }
                 >
-                  <span className="material-symbols-outlined text-[24px]">groups</span>
-                  <span className="text-[12px] font-normal font-sans block mt-0.5">Community</span>
+                  <span className="material-symbols-outlined text-[24px]">
+                    groups
+                  </span>
+
+                  <span className="text-[12px] font-normal font-sans block mt-0.5">
+                    Community
+                  </span>
                 </NavLink>
-                
+
                 {/* Me Dropdown */}
                 <div className="relative border-l border-[var(--line-soft)] pl-4">
-                  <button 
+                  <button
                     onClick={() => setShowProfileMenu(!showProfileMenu)}
                     className="flex flex-col items-center text-[var(--text-soft)] hover:text-[var(--text-main)] focus:outline-none cursor-pointer bg-transparent border-none"
                   >
-                    <img 
+                    <img
                       src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9Cs3FnKmxvQzkJNuY_KMFgDQJIQ6iGRe0rTmqzaCCCxNexZe1OCgxF5kfCqnTpbQD3Om9UO4c8xVu1eB0R2Vb4-tqGzhiKVGopUwu5zlNvnpcwEyYefOhnbj4XCWbzC8umzJMQCtDhVWMjGSOQO70z3eQGWLI63o7LuhkupRBTqjQP6ZAPvL5o0hbUD4qlFxb9-fhANySuXcas2cTldpEC8pwr6TiF1iJYVIUv7Cfv1uRIH55TPX7fSwH7YAetDi1HFjptzqTbCY"
                       alt={username}
                       className="w-[24px] h-[24px] rounded-full object-cover"
@@ -165,14 +175,14 @@ export default function App() {
                   )}
                 </div>
               </div>
-              
+
               {/* Mobile Profile Trigger */}
               <div className="md:hidden relative">
-                <button 
+                <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="w-8 h-8 rounded-full overflow-hidden border border-[var(--line-soft)] focus:outline-none bg-transparent"
                 >
-                  <img 
+                  <img
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9Cs3FnKmxvQzkJNuY_KMFgDQJIQ6iGRe0rTmqzaCCCxNexZe1OCgxF5kfCqnTpbQD3Om9UO4c8xVu1eB0R2Vb4-tqGzhiKVGopUwu5zlNvnpcwEyYefOhnbj4XCWbzC8umzJMQCtDhVWMjGSOQO70z3eQGWLI63o7LuhkupRBTqjQP6ZAPvL5o0hbUD4qlFxb9-fhANySuXcas2cTldpEC8pwr6TiF1iJYVIUv7Cfv1uRIH55TPX7fSwH7YAetDi1HFjptzqTbCY"
                     alt={username}
                     className="w-full h-full object-cover"
@@ -235,13 +245,35 @@ export default function App() {
 
       {/* Main Content frame */}
       <main className="flex-grow w-full flex flex-col">
+
         <Routes>
-          <Route path="/" element={authSession?.user ? <FeedPage /> : <HomePage />} />
+          <Route
+            path="/"
+            element={authSession?.user ? <FeedPage /> : <HomePage />}
+          />
+
           <Route path="/login" element={<LoginPage />} />
+
           <Route path="/register" element={<RegisterPage />} />
+
           <Route path="/stack" element={<StackPage />} />
+
           <Route path="/search" element={<StatusPage />} />
-          <Route path="/profile" element={authSession?.user ? <ProfilePage /> : <LoginPage />} />
+
+          <Route
+            path="/profile"
+            element={authSession?.user ? <ProfilePage /> : <LoginPage />}
+          />
+
+         <Route
+    path="/community"
+    element={<DiscussionPage />}
+/>
+
+<Route
+    path="/community/:discussionId"
+    element={<DiscussionRoomPage />}
+/>
         </Routes>
       </main>
     </div>
