@@ -4,13 +4,13 @@ const authSession = JSON.parse(
     localStorage.getItem("devhub_auth") || "null"
 );
 
-const socket = io(
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
-    {
-        auth: {
-            token: authSession?.accessToken,
-        },
-    }
-);
+const SOCKET_URL =
+    import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+
+const socket = io(SOCKET_URL, {
+    auth: {
+        token: authSession?.accessToken,
+    },
+});
 
 export default socket;
