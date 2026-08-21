@@ -33,7 +33,7 @@ const DiscussionRoomPage = () => {
             setError("");
 
             const response = await fetch(
-                `/api/v1/discussions/${discussionId}/messages`,
+                `${import.meta.env.VITE_API_BASE_URL}/discussions/${discussionId}/messages`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
